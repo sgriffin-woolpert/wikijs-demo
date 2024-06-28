@@ -1,0 +1,3 @@
+terraform/terraform.*
+terraform/wikijs_dump.postgres
+terraform/terraform.lock.hcl
