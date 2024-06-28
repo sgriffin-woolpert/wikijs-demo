@@ -1,0 +1,45 @@
+# Create a Service Plan for OS Linux
+resource "azurerm_service_plan" "servplan" {
+  name                = var.service_plan_name
+  resource_group_name = data.azurerm_resource_group.griffin.name
+  location            = data.azurerm_resource_group.griffin.location
+  os_type             = "Linux"
+  sku_name            = var.service_plan_sku
+}
+
+# Create a Linux App Service declaring Application Settings and 
+# the Docker image for container build
+resource "azurerm_linux_web_app" "appservice" {
+  name                = var.app_service_name
+  resource_group_name = data.azurerm_resource_group.griffin.name
+  location            = data.azurerm_resource_group.griffin.location
+  service_plan_id     = azurerm_service_plan.servplan.id
+
+  app_settings = {
+    "DB_TYPE" = "postgres"
+    "DB_HOST" = "${var.postgresql-server-name}.postgres.database.azure.com"
+    "DB_PORT" = 5432
+    "DB_NAME" = "wikijs"
+    "DB_USER" = "${var.postgresql-admin-login}@${var.postgresql-server-name}"
+    "DB_PASS" = "${var.postgresql-admin-password}"
+    "DB_SSL"  = true
+  }
+
+  site_config {
+    always_on = false
+    application_stack {
+      docker_image     = "requarks/wiki"
+      docker_image_tag = "2.5.303"
+    }
+  }
+}
+
+--resource-group ${data.azurerm_resource_group.griffin.name} \
+        --name ${var.postgresql-server-name} \
+        --database-name ${var.postgresql-database-name}\
+        --storage-account ${var.storage_account_name}\
+        --storage-container ${var.storage_container_name}\
+        --storage-file ${var.backup_file_path}\
+        --admin-password ${var.postgresql-admin-password}\
+        --admin-user ${var.postgresql-admin-login}\
+        --querytext "psql sslmode=require -h mmchlwikijs.postgres.database.azure.com -p 5432 -U ${var.postgresql-admin-login} -P ${var.postgresql-admin-password} wikijs < ${var.storage_account_name}/${var.storage_container_name}/${var.backup_file_path}"
