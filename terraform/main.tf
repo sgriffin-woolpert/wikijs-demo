@@ -76,32 +76,23 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "postgresql_firewall
   end_ip_address   = "0.0.0.0"
 }
 
-// Import Database from Blob storage into Postgres
-resource "null_resource" "import_initial_wikijs_database" {
-
-
- /* provisioner "local-exec" {
-    //command = <<-EOF
-      az postgres flexible-server execute \
-        --name ${var.postgresql-server-name} \
-        --database-name ${var.postgresql-database-name}\
-        --admin-password ${var.postgresql-admin-password}\
-        --admin-user ${var.postgresql-admin-login}\
-        --querytext ' sslmode=require -h mmchlwikijs.postgres.database.azure.com -p 5432 -U ${var.postgresql-admin-login} -P ${var.postgresql-admin-password} wikijs < ${var.storage_account_name}/${var.storage_container_name}/${var.backup_file_path}'
-    EOF
+// Import Database from backup 
+resource "null_resource" "db_setup" {
+  provisioner "local-exec" {
+    command = "psql sslmode=require -h mmchlwikijs.postgres.database.azure.com -p 5432 -U ${var.postgresql-admin-login} -d wikijs < ./wikijs_dump.postgres"
+    environment = {
+      PGPASSWORD = "${var.postgresql-admin-password}"
+    }
   }
-//} */
-
-provisioner "local-exec" {
-  command = <<-EOF
-  export PGPASSWORD=${var.postgresql-admin-password}\
-  'psql sslmode=require -h mmchlwikijs.postgres.database.azure.com -p 5432 -U ${var.postgresql-admin-login} -d wikijs < ./wikijs_dump.postgres'
-  EOF 
 }
+resource "null_resource" "db_verification" {
+  provisioner "local-exec" {
+    command = "psql -h mmchlwikijs.postgres.database.azure.com -p 5432 -U test -d wikijs -c 'SELECT * FROM users;'"
+    environment = {
+      PGPASSWORD = "${var.postgresql-admin-password}"
+    }
+  }
 }
-
-
-// psql sslmode=require -h mmchlwikijs.postgres.database.azure.com -p 5432 -U test wikijs < ~/wikijs_dump.postgres 
 
 # Create a Service Plan for OS Linux
 resource "azurerm_service_plan" "servplan" {
