@@ -21,7 +21,7 @@ data "azurerm_resource_group" "griffin" {
 // resource_group_name      = data.azurerm_resource_group.griffin.name
 
 # Create PostgreSQL server
-resource "azurerm_postgresql_flexible_server" "default" {
+resource "azurerm_postgresql_flexible_server" "mmchlwikijs" {
   name                   = var.postgresql-server-name
   resource_group_name    = data.azurerm_resource_group.griffin.name
   location               = data.azurerm_resource_group.griffin.location
@@ -37,8 +37,8 @@ resource "azurerm_postgresql_flexible_server" "default" {
 # Create PostgreSQL database
 resource "azurerm_postgresql_flexible_server_database" "mmchlwikijs" {
   name       = var.postgresql-database-name
-  server_id  = azurerm_postgresql_flexible_server.default.id
-  depends_on = [azurerm_postgresql_flexible_server.default]
+  server_id  = azurerm_postgresql_flexible_server.mmchlwikijs.id
+  depends_on = [azurerm_postgresql_flexible_server.mmchlwikijs]
 }
 
 // Create storage account 
@@ -55,35 +55,26 @@ resource "azurerm_storage_container" "chlmmwikijs" {
   name                  = var.storage_container_name
   storage_account_name  = var.storage_account_name
   container_access_type = "private"
-}
-
-// Upload local file to Azure blob storage
-resource "azurerm_storage_blob" "backup_file" {
-  name                   = var.backup_file_path
-  type                   = "Block"
-  storage_container_name = var.storage_container_name
-  storage_account_name   = var.storage_account_name
-  // content                = base64encode(file(var.backup_file_path))
-
-  depends_on = [azurerm_postgresql_flexible_server.default]
+  depends_on            = [azurerm_storage_account.chlmmwikijspb]
 }
 
 # PostgreSQL Connection security: Allowing access to Azure services  
-resource "azurerm_postgresql_flexible_server_firewall_rule" "postgresql_firewall_rule" {
+resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_service_access" {
   name             = "Azure_Service_Access"
-  server_id        = azurerm_postgresql_flexible_server.default.id
+  server_id        = azurerm_postgresql_flexible_server.mmchlwikijs.id
   start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
+  end_ip_address   = "255.255.255.255"
 }
 
 // Import Database from backup 
 resource "null_resource" "db_setup" {
   provisioner "local-exec" {
-    command = "psql sslmode=require -h mmchlwikijs.postgres.database.azure.com -p 5432 -U ${var.postgresql-admin-login} -d wikijs < ./wikijs_dump.postgres"
+    command = "psql -h mmchlwikijs.postgres.database.azure.com -p 5432 -U ${var.postgresql-admin-login} -d wikijs < ./wikijs_dump.postgres"
     environment = {
       PGPASSWORD = "${var.postgresql-admin-password}"
     }
   }
+  depends_on = [azurerm_postgresql_flexible_server_firewall_rule.azure_service_access]
 }
 resource "null_resource" "db_verification" {
   provisioner "local-exec" {
@@ -92,6 +83,7 @@ resource "null_resource" "db_verification" {
       PGPASSWORD = "${var.postgresql-admin-password}"
     }
   }
+  depends_on = [null_resource.db_setup]
 }
 
 # Create a Service Plan for OS Linux
