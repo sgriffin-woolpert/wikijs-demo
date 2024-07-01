@@ -2,7 +2,7 @@
 title: Home
 description: 
 published: true
-date: 2024-07-01T19:42:23.556Z
+date: 2024-07-01T19:42:41.377Z
 tags: lorem, ipsum, terraform
 editor: markdown
 dateCreated: 2024-07-01T15:05:08.184Z
