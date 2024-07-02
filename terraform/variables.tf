@@ -14,10 +14,6 @@ variable "postgresql-version" {
   default     = "13"
 }
 variable "postgresql-sku-name" {
-  type        = string
-  description = "PostgreSQL SKU Name"
-  default     = "GP_Standard_D2s_v3"
-  // B1ms - change to correct size
 }
 variable "storage_mbps" {
   type        = string
@@ -40,9 +36,6 @@ variable "firewall-rules" {
   default     = "fw-rules"
 }
 variable "first_ip_address" {
-  type        = string
-  description = "Put your description here"
-  default     = "10.0.0.1"
 }
 variable "last_ip_address" {
   type        = string
@@ -64,7 +57,7 @@ variable "storage_account_name" {
   description = "Azure storage account for db backups"
   default     = "chlmmwikijspb"
 }
-variable "service_plan_name" {
+variable "app_service_plan" {
   type        = string
   default     = "ASP-tcblpwiki"
   description = "Name of the App Service Web App."
@@ -78,4 +71,9 @@ variable "app_service_name" {
   type        = string
   default     = "chlwikijs"
   description = "Name of the App Service Web App."
+}
+
+variable "db-port" {
+}
+variable "db-type" {
 }

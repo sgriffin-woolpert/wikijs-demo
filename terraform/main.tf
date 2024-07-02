@@ -62,8 +62,8 @@ resource "azurerm_storage_container" "chlmmwikijs" {
 resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_service_access" {
   name             = "Azure_Service_Access"
   server_id        = azurerm_postgresql_flexible_server.mmchlwikijs.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "255.255.255.255"
+  start_ip_address = var.first_ip_address
+  end_ip_address   = var.last_ip_address
 }
 
 // Import Database from backup 
@@ -88,7 +88,7 @@ resource "null_resource" "db_verification" {
 
 # Create a Service Plan for OS Linux
 resource "azurerm_service_plan" "servplan" {
-  name                = var.service_plan_name
+  name                = var.app_service_plan
   resource_group_name = data.azurerm_resource_group.griffin.name
   location            = data.azurerm_resource_group.griffin.location
   os_type             = "Linux"
@@ -104,9 +104,9 @@ resource "azurerm_linux_web_app" "appservice" {
   service_plan_id     = azurerm_service_plan.servplan.id
 
   app_settings = {
-    "DB_TYPE" = "postgres"
+    "DB_TYPE" = "${var.db-type}"
     "DB_HOST" = "${var.postgresql-server-name}.postgres.database.azure.com"
-    "DB_PORT" = 5432
+    "DB_PORT" = "${var.db-port}"
     "DB_NAME" = "${var.postgresql-database-name}"
     "DB_USER" = "${var.postgresql-admin-login}"
     "DB_PASS" = "${var.postgresql-admin-password}"
