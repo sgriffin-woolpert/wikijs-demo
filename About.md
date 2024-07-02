@@ -2,7 +2,7 @@
 title: About
 description: 
 published: true
-date: 2024-07-01T19:47:36.151Z
+date: 2024-07-01T19:47:38.279Z
 tags: ipsum, terraform, plan
 editor: markdown
 dateCreated: 2024-07-01T19:39:48.304Z

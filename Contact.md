@@ -2,7 +2,7 @@
 title: Contact
 description: 
 published: true
-date: 2024-07-01T19:53:48.624Z
+date: 2024-07-01T19:53:51.116Z
 tags: 
 editor: markdown
 dateCreated: 2024-07-01T19:47:00.932Z
