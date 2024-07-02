@@ -1,4 +1,5 @@
-terraform/terraform.*
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
 terraform/wikijs_dump.postgres
 terraform/.terraform.lock.hcl
 terraform/.terraform

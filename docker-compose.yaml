@@ -13,7 +13,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
       - .:/app
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql 
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   wiki:
     image: ghcr.io/requarks/wiki:2
     depends_on:
@@ -31,4 +31,5 @@ services:
 
 volumes:
   db-data:
+  
 
