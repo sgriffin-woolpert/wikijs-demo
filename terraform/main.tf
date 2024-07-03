@@ -29,7 +29,7 @@ resource "azurerm_postgresql_flexible_server" "mmchlwikijs" {
   administrator_login    = var.postgresql-admin-login
   administrator_password = var.postgresql-admin-password
   zone                   = "1"
-  storage_mb             = 32768
+  storage_mb             = var.storage_mb
   sku_name               = var.postgresql-sku-name
   backup_retention_days  = 7
 }
